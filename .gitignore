@@ -3,6 +3,7 @@
 .DS_Store
 /.vscode/
 /data/
+/data_dir/
 /logs/
 /models/
 /outputs/
