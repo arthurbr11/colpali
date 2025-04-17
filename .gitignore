@@ -6,6 +6,7 @@
 /data_dir/
 /logs/
 /models/
+/wandb/
 /outputs/
 
 # Byte-compiled / optimized / DLL files

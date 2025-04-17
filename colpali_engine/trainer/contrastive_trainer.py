@@ -1,6 +1,7 @@
 import torch
 from transformers import Trainer
-
+import os 
+os.environ["WANDB_PROJECT"] = "ColSmolDocling"  # Disable parallelism for tokenizers to avoid warnings
 
 class ContrastiveTrainer(Trainer):
     def __init__(self, loss_func, is_vision_model, *args, **kwargs):
