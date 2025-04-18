@@ -8,15 +8,8 @@
 #SBATCH --qos=normal
 #SBATCH --array=0-2  # Array of 3 tasks (0,1,2)
 
-
-source /admin/home/arthur_bresnu/.bashrc
-
 cd /fsx/arthur_bresnu/projects/colpali
 source .venv/bin/activate
-
-
-# Create logs directory if it doesn't exist
-mkdir -p logs
 
 # Get number of GPUs from SLURM
 N_GPU=$SLURM_GPUS_ON_NODE
@@ -32,9 +25,6 @@ LR=${LEARNING_RATES[$SLURM_ARRAY_TASK_ID]}
 # Create run name and output directory based on parameters
 RUN_NAME="ColSmolDocling-256M-preview_exp_bs${BATCH_SIZE}_lr${LR}_gpu${N_GPU}"
 OUTPUT_DIR="models/ColSmolDocling-256M-preview_exp_bs${BATCH_SIZE}_lr${LR}_gpu${N_GPU}"
-
-# Create output directory
-mkdir -p ${OUTPUT_DIR}
 
 # Base config file
 CONFIG_FILE="scripts/configs/idefics/train_colsmoldocling_model_original.yaml"
