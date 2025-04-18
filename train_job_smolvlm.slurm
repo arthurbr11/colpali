@@ -2,8 +2,10 @@
 #SBATCH --job-name=train_ColSmolVLM
 #SBATCH --output=logs/train_ColSmolVLM%A_%a.out
 #SBATCH --error=logs/train_ColSmolVLM%A_%a.err
+#SBATCH --gpus=2
+#SBATCH --partition=hopper-prod
 #SBATCH --time=5:00:00
-#SBATCH --gres=gpu:2  # Request 2 GPUs
+#SBATCH --qos=normal
 
 source /admin/home/arthur_bresnu/.bashrc
 

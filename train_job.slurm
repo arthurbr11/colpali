@@ -3,7 +3,9 @@
 #SBATCH --output=logs/train_ColSmolDocling%A_%a.out
 #SBATCH --error=logs/train_ColSmolDocling%A_%a.err
 #SBATCH --time=6:00:00
-#SBATCH --gres=gpu:4  # Request 4 GPUs
+#SBATCH --gpus=4
+#SBATCH --partition=hopper-prod
+#SBATCH --qos=normal
 #SBATCH --array=0-2  # Array of 3 tasks (0,1,2)
 
 
