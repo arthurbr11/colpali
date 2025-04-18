@@ -16,4 +16,4 @@ mkdir -p logs/train_ColSmolVLM
 CONFIG_FILE="scripts/configs/idefics/train_colsmolvlm-256_reproduction.yaml"
 
 # Run training with accelerate
-accelerate launch --main_process_port 0 scripts/train/train_colbert.py ${CONFIG_FILE} 
+accelerate launch scripts/train/train_colbert.py ${CONFIG_FILE} 

@@ -24,10 +24,10 @@ LR=${LEARNING_RATES[$SLURM_ARRAY_TASK_ID]}
 
 # Create run name and output directory based on parameters
 RUN_NAME="ColSmolDocling-256M-preview_exp_bs${BATCH_SIZE}_lr${LR}_gpu${N_GPU}"
-OUTPUT_DIR="models/ColSmolDocling-256M-preview_exp_bs${BATCH_SIZE}_lr${LR}_gpu${N_GPU}"
+OUTPUT_DIR="../../../models/ColSmolDocling-256M-preview_exp_bs${BATCH_SIZE}_lr${LR}_gpu${N_GPU}"
 
 # Base config file
-CONFIG_FILE="scripts/configs/idefics/train_colsmoldocling_model_original.yaml"
+CONFIG_FILE="scripts/configs/idefics/train_colsmoldocling_model.yaml"
 
 # Create temporary config file
 TEMP_CONFIG="scripts/configs/idefics/train_colsmoldocling_model_bs${BATCH_SIZE}_lr${LR}_gpu${N_GPU}.yaml"
@@ -36,12 +36,12 @@ TEMP_CONFIG="scripts/configs/idefics/train_colsmoldocling_model_bs${BATCH_SIZE}_
 sed -e "s/per_device_train_batch_size: [0-9]*/per_device_train_batch_size: ${BATCH_SIZE}/" \
     -e "s/per_device_eval_batch_size: [0-9]*/per_device_eval_batch_size: ${BATCH_SIZE}/" \
     -e "s/learning_rate: [0-9.e-]*/learning_rate: ${LR}/" \
-    -e "s/output_dir: !path [^ ]*/output_dir: !path ${OUTPUT_DIR}/" \
+    -e "s|output_dir: !path [^ ]*|output_dir: !path ${OUTPUT_DIR}|" \
     -e "s/run_name: [^ ]*/run_name: ${RUN_NAME}/" \
     ${CONFIG_FILE} > ${TEMP_CONFIG}
 
 # Run training with accelerate
 accelerate launch scripts/train/train_colbert.py ${TEMP_CONFIG} 
 
-# Clean up temporary config
-rm ${TEMP_CONFIG} 
+# # Clean up temporary config
+# rm ${TEMP_CONFIG} 
