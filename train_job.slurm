@@ -43,5 +43,5 @@ sed -e "s/per_device_train_batch_size: [0-9]*/per_device_train_batch_size: ${BAT
 # Run training with accelerate
 accelerate launch scripts/train/train_colbert.py ${TEMP_CONFIG} 
 
-# # Clean up temporary config
-# rm ${TEMP_CONFIG} 
+# Clean up temporary config
+rm ${TEMP_CONFIG} 

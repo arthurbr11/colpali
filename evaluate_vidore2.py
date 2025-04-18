@@ -4,6 +4,8 @@ import os
 from typing import cast
 
 import huggingface_hub
+import wandb
+
 import pandas as pd
 import torch
 from datasets import Dataset, load_dataset
@@ -29,7 +31,7 @@ def load_model_and_processor(model_dir: str, processor_dir: str = None, device: 
     if processor_dir is None:
         processor_dir = model_dir
 
-    processor = ColIdefics3Processor.from_pretrained(f"{processor_dir}-base")
+    processor = ColIdefics3Processor.from_pretrained(f"{processor_dir}")
     model = ColIdefics3.from_pretrained(
         model_dir,
         torch_dtype=torch.bfloat16,
@@ -79,6 +81,8 @@ def evaluate_model(
 
     # Evaluate on each dataset
     metrics_collection = {}
+    output_file = os.path.join(output_dir, f"metrics_{model_name}.json")
+
     for dataset_name in tqdm(dataset_names, desc="Evaluating dataset(s)"):
         print(f"\nEvaluating dataset: {dataset_name}")
         ds = {
@@ -93,10 +97,9 @@ def evaluate_model(
             batch_score=batch_sizes["score"],
         )
 
-    # Save detailed metrics
-    output_file = os.path.join(output_dir, f"metrics_{model_name}.json")
-    with open(output_file, "w") as f:
-        json.dump(metrics_collection, f, indent=4)
+        # Save detailed metrics each dataset in case of failure
+        with open(output_file, "w") as f:
+            json.dump(metrics_collection, f, indent=4)
 
     # Create summary DataFrame
     df = pd.DataFrame.from_dict(metrics_collection, orient="index")
@@ -109,6 +112,20 @@ def evaluate_model(
         if metric in df.columns:
             avg_value = df[metric].mean()
             print(f"Average {metric}: {avg_value:.4f}")
+    
+    ndcg5_avg = df["ndcg_at_5"].mean()
+    print(f"Average ndcg_at_5: {ndcg5_avg:.4f}")
+
+    # Initialize a new run
+
+    api = wandb.Api()
+
+    runs = api.runs("arthurbr11/ColSmolDocling", {"display_name": model_name})
+    run_id = runs[0].id
+
+    wandb.init(id=run_id, project="ColSmolDocling", entity="arthurbr11", resume="must")
+    wandb.log({"mean_ndcg_at_5": ndcg5_avg})
+    wandb.finish()
 
     return metrics_collection
 
