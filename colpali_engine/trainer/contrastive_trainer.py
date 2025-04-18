@@ -1,15 +1,25 @@
 import torch
 from transformers import Trainer
-import os 
+import os
+import wandb
+
 os.environ["WANDB_PROJECT"] = "ColSmolDocling"  # Disable parallelism for tokenizers to avoid warnings
+
 
 class ContrastiveTrainer(Trainer):
     def __init__(self, loss_func, is_vision_model, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.loss_func = loss_func
         self.is_vision_model = is_vision_model  # Unused argument, will be removed in 0.4.0
+        self.added_gpu_count = False  # Flag to check if GPU count is already added to wandb config
 
     def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
+        # Add GPU count to wandb config
+        if not self.added_gpu_count:
+            if wandb.run is not None:
+                wandb.config.update({"gpu_count": wandb.run._metadata.gpu_count})
+                self.added_gpu_count = True
+
         query_outputs = model(input_ids=inputs["query_input_ids"], attention_mask=inputs["query_attention_mask"])
         # feed only kwargs with 'doc_' prefix
         doc_outputs = model(**{k[4:]: v for k, v in inputs.items() if k.startswith("doc")})
@@ -29,7 +39,10 @@ class ContrastiveTrainer(Trainer):
         with torch.no_grad():
             # feed only kwargs with 'doc_' prefix
             doc_outputs = model(**{k[4:]: v for k, v in inputs.items() if k.startswith("doc")})
-            query_outputs = model(input_ids=inputs["query_input_ids"], attention_mask=inputs["query_attention_mask"])
+            query_outputs = model(
+                input_ids=inputs["query_input_ids"],
+                attention_mask=inputs["query_attention_mask"],
+            )
             if "neg_doc_input_ids" in inputs:
                 neg_doc_outputs = model(**{k[8:]: v for k, v in inputs.items() if k.startswith("neg_doc")})
                 loss = self.loss_func(query_outputs, doc_outputs, neg_doc_outputs)

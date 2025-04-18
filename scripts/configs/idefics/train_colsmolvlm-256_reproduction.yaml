@@ -1,17 +1,17 @@
 config:
   (): colpali_engine.trainer.colmodel_training.ColModelTrainingConfig
-  output_dir: !path ../../../models/ColSmolDocling-256M-preview
+  output_dir: !path ../../../models/ColSmolVLM-Instruct-256M_exp_bs64_lr5e-4_gpu2
   processor:
     (): colpali_engine.utils.transformers_wrappers.AllPurposeWrapper
     class_to_instanciate: !ext colpali_engine.models.ColIdefics3Processor
-    pretrained_model_name_or_path:  "arthurbresnu/ColSmolDocling-256M-preview-base"
+    pretrained_model_name_or_path:  "vidore/ColSmolVLM-Instruct-256M-base"
     # num_image_tokens: 2048
     # max_length: 50
 
   model:
     (): colpali_engine.utils.transformers_wrappers.AllPurposeWrapper
     class_to_instanciate: !ext colpali_engine.models.ColIdefics3
-    pretrained_model_name_or_path: "arthurbresnu/ColSmolDocling-256M-preview-base"
+    pretrained_model_name_or_path: "vidore/ColSmolVLM-Instruct-256M-base"
     torch_dtype:  !ext torch.bfloat16
     # use_cache: false
     attn_implementation: "flash_attention_2"
@@ -55,7 +55,7 @@ config:
     # optim: "paged_adamw_8bit"
     # wandb logging
     # wandb_project: "colqwen2"
-    run_name: "first_run_gpu2_bs64_lr5e-4"
+    run_name: "ColSmolVLM-Instruct-256M_exp_bs64_lr5e-4_gpu2"
     report_to: "wandb"
 
 
