@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=train_ColSmolDocling
-#SBATCH --output=logs/train_ColSmolDocling%A_%a.out
-#SBATCH --error=logs/train_ColSmolDocling%A_%a.err
+#SBATCH --output=logs/train_ColSmolDocling/%A_%a.out
+#SBATCH --error=logs/train_ColSmolDocling/%A_%a.err
 #SBATCH --time=6:00:00
 #SBATCH --gpus=4
 #SBATCH --partition=hopper-prod
@@ -51,9 +51,7 @@ sed -e "s/per_device_train_batch_size: [0-9]*/per_device_train_batch_size: ${BAT
     ${CONFIG_FILE} > ${TEMP_CONFIG}
 
 # Run training with accelerate
-accelerate launch --multi_gpu --num_processes=${N_GPU} \
-    scripts/train/train_colbert.py \
-    ${TEMP_CONFIG} 
+accelerate launch scripts/train/train_colbert.py ${TEMP_CONFIG} 
 
 # Clean up temporary config
 rm ${TEMP_CONFIG} 

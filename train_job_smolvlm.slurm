@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=train_ColSmolVLM
-#SBATCH --output=logs/train_ColSmolVLM%A_%a.out
-#SBATCH --error=logs/train_ColSmolVLM%A_%a.err
+#SBATCH --output=logs/train_ColSmolVLM/%A_%a.out
+#SBATCH --error=logs/train_ColSmolVLM/%A_%a.err
 #SBATCH --gpus=2
 #SBATCH --partition=hopper-prod
 #SBATCH --time=5:00:00
@@ -21,6 +21,4 @@ N_GPU=$SLURM_GPUS_ON_NODE
 CONFIG_FILE="scripts/configs/idefics/train_colsmolvlm_model.yaml"
 
 # Run training with accelerate
-accelerate launch --multi_gpu --num_processes=${N_GPU} \
-    scripts/train/train_colbert.py \
-    ${CONFIG_FILE} 
+accelerate launch scripts/train/train_colbert.py ${CONFIG_FILE} 
