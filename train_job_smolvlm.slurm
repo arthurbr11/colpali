@@ -15,10 +15,7 @@ source .venv/bin/activate
 # Create logs directory if it doesn't exist
 mkdir -p logs
 
-# Get number of GPUs from SLURM
-N_GPU=$SLURM_GPUS_ON_NODE
-
-CONFIG_FILE="scripts/configs/idefics/train_colsmolvlm_model.yaml"
+CONFIG_FILE="scripts/configs/idefics/train_colsmolvlm-256_reproduction.yaml"
 
 # Run training with accelerate
 accelerate launch scripts/train/train_colbert.py ${CONFIG_FILE} 
