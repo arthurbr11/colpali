@@ -2,6 +2,7 @@ import os
 from typing import List, Tuple, cast
 
 from datasets import Dataset, DatasetDict, concatenate_datasets, load_dataset
+import random
 
 USE_LOCAL_DATASET = os.environ.get("USE_LOCAL_DATASET", "1") == "1"
 
@@ -19,12 +20,34 @@ def load_train_set() -> DatasetDict:
     base_path = "./data_dir/" if USE_LOCAL_DATASET else "vidore/"
     ds_dict = cast(DatasetDict, load_dataset(base_path + ds_path))
     return ds_dict
-    
+
+
 def load_train_set_nomic() -> DatasetDict:
     ds_path = "colpali_train_set_split_by_source"
     base_path = "./data_dir/" if USE_LOCAL_DATASET else "nomic-ai/"
-    ds_dict = cast(DatasetDict, load_dataset(base_path + ds_path))
-    return ds_dict
+
+    # Load the train dataset
+    train_ds = cast(Dataset, load_dataset(base_path + ds_path, split="train"))
+
+    # Shuffle the indices manually
+    buffer_batch_size = 512
+    indices = list(range(len(train_ds)))
+
+    batches = [indices[i : i + buffer_batch_size] for i in range(0, len(indices), buffer_batch_size)]
+
+    # Shuffle the batches
+    random.shuffle(batches)
+
+    # Flatten the list of shuffled batches
+    shuffled_indices = [index for batch in batches for index in batch]
+
+    # Create a new shuffled dataset using the shuffled indices
+    shuffled_train_ds = train_ds.select(shuffled_indices)
+
+    # Load test set normally
+    test_ds: Dataset = load_train_set()["test"]
+
+    return DatasetDict({"train": shuffled_train_ds, "test": test_ds})
 
 
 def load_train_set_detailed() -> DatasetDict:
@@ -217,5 +240,6 @@ class TestSetFactory:
 
 
 if __name__ == "__main__":
-    ds = TestSetFactory("vidore/tabfquad_test_subsampled")()
-    print(ds)
+    # ds = TestSetFactory("vidore/tabfquad_test_subsampled")()
+    # print(ds)
+    ds = load_train_set_nomic()
