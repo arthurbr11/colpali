@@ -165,7 +165,7 @@ def load_train_set_ir_negs() -> Tuple[DatasetDict, Dataset, str]:
 
 
 def load_train_set_nomic_ir_negs() -> DatasetDict:
-    ds_path = "colpali-queries-mined-20250321-by-source-colqwen-mine"
+    ds_path = "colpali-queries-mined-20250321-by-source-mine"
     base_path = "./data_dir/" if USE_LOCAL_DATASET else "nomic-ai/"
 
     # Load the train dataset
