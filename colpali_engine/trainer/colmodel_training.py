@@ -13,9 +13,9 @@ from colpali_engine.loss.late_interaction_losses import (
     ColbertLoss,
 )
 from colpali_engine.trainer.contrastive_trainer import ContrastiveTrainer
+from colpali_engine.utils.dataset_transformation import load_train_set_nomic, load_train_set_nomic_ir_negs
 from colpali_engine.utils.gpu_stats import print_gpu_utilization, print_summary
 from colpali_engine.utils.processing_utils import BaseVisualRetrieverProcessor
-from colpali_engine.utils.dataset_transformation import load_train_set_nomic
 
 
 @dataclass
@@ -115,7 +115,7 @@ class ColModelTraining:
             data_collator=self.collator,
             loss_func=self.config.loss_func,
             is_vision_model=self.config.processor is not None,
-            shuffle=self.config.dataset_loading_func is not load_train_set_nomic,
+            shuffle=self.config.dataset_loading_func is not (load_train_set_nomic and load_train_set_nomic_ir_negs),
         )
 
         trainer.args.remove_unused_columns = False

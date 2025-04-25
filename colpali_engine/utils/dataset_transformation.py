@@ -164,6 +164,44 @@ def load_train_set_ir_negs() -> Tuple[DatasetDict, Dataset, str]:
     return ds_dict, anchor_ds, "vidore"
 
 
+def load_train_set_nomic_ir_negs() -> DatasetDict:
+    ds_path = "colpali-queries-mined-20250321-by-source-colqwen-mine"
+    base_path = "./data_dir/" if USE_LOCAL_DATASET else "nomic-ai/"
+
+    # Load the train dataset
+    dataset = cast(Dataset, load_dataset(base_path + ds_path, split="train"))
+
+    dataset = dataset.map(lambda x: {"negative_passages": x["negative_passages"][:6]})
+    random.seed(42)
+    # select randomly 500 samples and pop them out but keep the rest like the original dataset no shuffle
+    rand_indices = random.sample(range(len(dataset)), 500)
+    dataset_eval = dataset.select(rand_indices)
+    dataset = dataset.select(
+        [i for i in range(len(dataset)) if i not in rand_indices]
+    )  # remove the selected indices from the dataset
+
+    # Shuffle the indices manually
+    buffer_batch_size = 512
+    indices = list(range(len(dataset)))
+
+    batches = [indices[i : i + buffer_batch_size] for i in range(0, len(indices), buffer_batch_size)]
+
+    # Shuffle the batches
+    random.shuffle(batches)
+
+    # Flatten the list of shuffled batches
+    shuffled_indices = [index for batch in batches for index in batch]
+
+    # Create a new shuffled dataset using the shuffled indices
+    dataset = dataset.select(shuffled_indices)
+
+    anchor_ds = cast(Dataset, load_dataset(base_path + "colpali-corpus", split="train"))
+
+    ds_dict = DatasetDict({"train": dataset, "test": dataset_eval})
+
+    return ds_dict, anchor_ds, "vidore"
+
+
 def load_train_set_with_docmatix() -> DatasetDict:
     ds_paths = [
         "infovqa_train",
