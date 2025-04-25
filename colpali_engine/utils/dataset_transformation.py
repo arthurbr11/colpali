@@ -36,6 +36,7 @@ def load_train_set_nomic() -> DatasetDict:
     batches = [indices[i : i + buffer_batch_size] for i in range(0, len(indices), buffer_batch_size)]
 
     # Shuffle the batches
+    random.seed(42)
     random.shuffle(batches)
 
     # Flatten the list of shuffled batches
